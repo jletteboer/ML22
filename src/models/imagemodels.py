@@ -51,3 +51,35 @@ class CNN(nn.Module):
         x = self.convolutions(x)
         logits = self.dense(x)
         return logits
+
+
+@gin.configurable
+class CNNNet(nn.Module):
+    def __init__(self, num_classes: int) -> None:
+        super().__init__()
+
+        self.layers = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=0),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=0),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),
+        )
+
+        self.dense = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.layers(x)
+        logits = self.dense(x)
+        return logits
