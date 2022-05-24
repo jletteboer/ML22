@@ -18,6 +18,8 @@ from tqdm import tqdm
 from src.data import data_tools
 from src.typehinting import GenericModel
 
+## John
+import torchvision
 
 def write_gin(dir: Path) -> None:
     path = dir / "saved_config.gin"
@@ -43,6 +45,13 @@ def trainloop(
     log_dir = Path(log_dir)
     data_tools.clean_dir(log_dir)
     writer = SummaryWriter(log_dir=log_dir)
+
+    # Add John
+    images, labels = next(iter(train_dataloader))
+    grid = torchvision.utils.make_grid(images)
+    writer.add_image('images', grid)
+    writer.add_graph(model, images)
+    # End Add
 
     for epoch in range(epochs):
         train_loss = 0.0
@@ -73,9 +82,12 @@ def trainloop(
         writer.add_scalar("Loss/test", test_loss, epoch)
         writer.add_scalar("Loss/accuracy", test_accuracy, epoch)
         logger.info(
-            f"Epoch {epoch} train {train_loss:.4f}",
-            f"test {test_loss:.4f} acc {test_accuracy:.4f}"
+        #    f"Epoch {epoch} train {train_loss:.4f}",
+        #    f"test {test_loss:.4f} acc {test_accuracy:.4f}"
+            # Fix for logging John
+            f"Epoch {epoch} train {train_loss:.4f} | test {test_loss:.4f} acc {test_accuracy:.4f}"
         )
+        
     write_gin(log_dir)
     return model
 
